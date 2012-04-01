@@ -187,6 +187,16 @@ class Resources extends Array
           # Fallback on sending text. (XHR falls-back on this)
           headers["content-type"] ||= "text/plain;charset=UTF-8"
 
+    if credentials = @_browser.credentials
+      switch credentials.scheme.toLowerCase()
+        when "basic"
+          base64 = new Buffer(credentials.user + ":" + credentials.password).toString("base64")
+          headers["authorization"] = "Basic #{base64}"
+        when "bearer"
+          headers["authorization"] = "Bearer #{credentials.token}"
+        when "oauth"
+          headers["authorization"] = "OAuth #{credentials.token}"
+
     # Pre 0.3 we need to specify the host name.
     headers["Host"] = url.host
     url.pathname = "/#{url.pathname || ""}" unless url.pathname && url.pathname[0] == "/"
